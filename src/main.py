@@ -2,8 +2,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi import FastAPI
 from pydantic import BaseModel
 from dataclasses import dataclass, asdict
-import sys 
-sys.path.append("src/")
+
 from src.translator import QueryTranslator
 from src.retriever import QueryRetriever
 from src.generator import QueryGenerator 
@@ -53,13 +52,6 @@ async def handle_query(query_model: QueryModel):
         logger.error("Error processing the query: %s", e)
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-@app.post("/query_translator/")
-async def translate_query(query_model: QueryModel):
-    query = query_model.query
-    user_query    = QueryTranslator().invoke(query=query)
-    return {"response": user_query.query}
-
-
 class URLRequest(BaseModel):
     url: str
 
@@ -69,7 +61,7 @@ async def crawl_github(url_request: URLRequest):
     meta_data = crawler.invoke()
     return meta_data
 
-# @app.post("/index_dulocloud/")
+# @app.post("/index/")
 # async def index_duplocloud():
 #     github_crawler = GitHubCrawler()
 #     github_docs = github_crawler.invoke()
@@ -80,7 +72,7 @@ class IndexResponse(BaseModel):
     message: str
     details: str = None
 
-@app.post("/index_duplocloud/", response_model=IndexResponse)
+@app.post("/index/", response_model=IndexResponse)
 async def index_duplocloud():
     try:
         logger.info("Starting the indexing process.")
